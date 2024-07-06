@@ -1,19 +1,25 @@
-### Hi there 👋
+#####
+
+<div align="center">
+    <img src="media/hi-there.webp" height="90" />
+    <h2 align="center">Hello there 👋</h2>
+</div>
+
+I am a Cloud Platform Enginner and .Net enthusiast.
 
 
-## Published
-- [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de)
-<!--
-**lukashankeln/lukashankeln** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+![](https://img.shields.io/badge/Kubernetes-informational?style=flat-square&logo=kubernetes&logoColor=white&color=0366D6)
+![](https://img.shields.io/badge/ArgoCD-informational?style=flat-square&logo=argo&logoColor=white&color=0366D6)
+![](https://img.shields.io/badge/Helm-informational?style=flat-square&logo=helm&logoColor=white&color=0366D6)
+![](https://img.shields.io/badge/Git-informational?style=flat-square&logo=git&logoColor=white&color=0366D6)
+![](https://img.shields.io/badge/Renovate-informational?style=flat-square&logo=renovate&logoColor=white&color=0366D6)
 
-Here are some ideas to get you started:
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+
+### Fun little Projects
+- [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
+- [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
+- [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
+
+- [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
+
