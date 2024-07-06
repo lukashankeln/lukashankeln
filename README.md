@@ -23,3 +23,21 @@ I am a Cloud Platform Enginner and .Net enthusiast.
 
 - [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
 
+### Recomandations
+
+##### Gitops Tools
+- [Argo CD](https://github.com/argoproj/argo-cd)
+- [Atlantis](https://github.com/runatlantis/atlantis)
+
+##### Automation
+- [Argo Workflows](https://github.com/argoproj/argo-workflows)
+
+
+##### Kubernetes
+- [k3s](https://github.com/k3s-io/k3s)
+- [Cilium](https://github.com/cilium/cilium) & [Hubble](https://github.com/cilium/hubble)
+- [Kyverno](https://github.com/kyverno/kyverno) & [Kyverno Policy Reporter](https://github.com/kyverno/policy-reporter)
+
+##### Homelab
+- [Dashy](https://github.com/Lissy93/dashy)
+- [Uptime-Kuma](https://github.com/louislam/uptime-kuma)
