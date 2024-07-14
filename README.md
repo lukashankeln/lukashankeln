@@ -25,6 +25,10 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 - :lock: [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
 
+
+### Blogs
+- [0001: Cilium on K3s](./blog/0001_cilium_on_k3s.md)
+
 ### Awesome lists
 - :computer: [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)
 - :newspaper: [Papers we love](https://github.com/papers-we-love/papers-we-love)
