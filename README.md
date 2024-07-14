@@ -17,11 +17,15 @@ I am a Cloud Platform Enginner and .Net enthusiast.
 
 
 ### Fun little Projects
-- [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
-- [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
-- [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
+- :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
+- :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
+- :books: [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
 
-- [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
+- :lock: [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
+
+### Awesome lists
+- :computer: [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)
+- :newspaper: [Papers we love](https://github.com/papers-we-love/papers-we-love)
 
 ### Recomandations
 
