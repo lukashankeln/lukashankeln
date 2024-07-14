@@ -1,5 +1,3 @@
-#####
-
 <div align="center">
     <img src="media/hi-there.webp" height="90" />
     <h2 align="center">Hello there 👋</h2>
@@ -18,7 +16,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 
 
-### Fun little Projects
+## Fun little Projects
 - :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
 - :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
 - :books: [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
@@ -26,33 +24,33 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 - :lock: [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
 
 
-### Blogs
+## Blogs
 - [0001: Cilium on K3s](./blog/0001_cilium_on_k3s.md)
 
-### Awesome lists
+## Awesome lists
 - :computer: [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)
 - :newspaper: [Papers we love](https://github.com/papers-we-love/papers-we-love)
 
-### Recomandations
+## Recomandations
 
-##### Gitops Tools
+### Gitops Tools
 - [Argo CD](https://github.com/argoproj/argo-cd)
 - [Atlantis](https://github.com/runatlantis/atlantis)
 
-##### Automation
+### Automation
 - [Argo Workflows](https://github.com/argoproj/argo-workflows)
 
 
-##### Kubernetes
+### Kubernetes
 - [k3s](https://github.com/k3s-io/k3s)
 - [Cilium](https://github.com/cilium/cilium) & [Hubble](https://github.com/cilium/hubble)
 - [Kyverno](https://github.com/kyverno/kyverno) & [Kyverno Policy Reporter](https://github.com/kyverno/policy-reporter)
 
-##### Homelab
+### Homelab
 - [Dashy](https://github.com/Lissy93/dashy)
 - [Uptime-Kuma](https://github.com/louislam/uptime-kuma)
 
-##### .Net
+### .Net
 - [TestContainers](https://github.com/testcontainers/testcontainers-dotnet)
 - [ErrorOr](https://github.com/amantinband/error-or)
 - [Polly](https://github.com/App-vNext/Polly)
