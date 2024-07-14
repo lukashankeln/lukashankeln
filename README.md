@@ -7,6 +7,8 @@
 
 I am a Cloud Platform Enginner and .Net enthusiast.
 
+Currently playing with dotnet #aspire and open telemetry in Kubernetes.
+
 
 ![](https://img.shields.io/badge/Kubernetes-informational?style=flat-square&logo=kubernetes&logoColor=white&color=0366D6)
 ![](https://img.shields.io/badge/ArgoCD-informational?style=flat-square&logo=argo&logoColor=white&color=0366D6)
@@ -45,3 +47,8 @@ I am a Cloud Platform Enginner and .Net enthusiast.
 ##### Homelab
 - [Dashy](https://github.com/Lissy93/dashy)
 - [Uptime-Kuma](https://github.com/louislam/uptime-kuma)
+
+##### .Net
+- [TestContainers](https://github.com/testcontainers/testcontainers-dotnet)
+- [ErrorOr](https://github.com/amantinband/error-or)
+- [Polly](https://github.com/App-vNext/Polly)
