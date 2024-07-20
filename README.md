@@ -19,6 +19,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 ## Fun little Projects
 - :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
 - :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
+    * :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
 - :books: [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
 
 - :lock: [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
