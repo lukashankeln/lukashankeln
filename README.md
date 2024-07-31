@@ -47,10 +47,13 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 - [k3s](https://github.com/k3s-io/k3s)
 - [Cilium](https://github.com/cilium/cilium) & [Hubble](https://github.com/cilium/hubble)
 - [Kyverno](https://github.com/kyverno/kyverno) & [Kyverno Policy Reporter](https://github.com/kyverno/policy-reporter)
+- [Hashicorp Vault](https://github.com/hashicorp/vault) & [External Secrets Operator](https://github.com/external-secrets/external-secrets)
 
 ### Homelab
 - [Dashy](https://github.com/Lissy93/dashy)
+- [Gatus](https://github.com/TwiN/gatus)
 - [Uptime-Kuma](https://github.com/louislam/uptime-kuma)
+
 
 ### .Net
 - [TestContainers](https://github.com/testcontainers/testcontainers-dotnet)
