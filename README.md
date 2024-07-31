@@ -16,7 +16,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 
 
-## Fun little Projects
+## Projects
 - :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
 - :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
     * :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
