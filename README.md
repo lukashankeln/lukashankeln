@@ -33,6 +33,12 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 - :computer: [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)
 - :newspaper: [Papers we love](https://github.com/papers-we-love/papers-we-love)
 
+## My lists
+- [Kubernetes](https://github.com/stars/lukashankeln/lists/kubernetes)
+- [Automation](https://github.com/stars/lukashankeln/lists/automation)
+- [PowerTools](https://github.com/stars/lukashankeln/lists/powertools)
+- [C#](https://github.com/stars/lukashankeln/lists/c)
+
 ## Recomandations
 
 ### Gitops Tools
