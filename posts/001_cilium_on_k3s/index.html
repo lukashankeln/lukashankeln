@@ -1,0 +1,110 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Cilium on k3s | Hankeln Blog</title>
+<meta name=description content="Personal blog by Luka Hankeln">
+<link rel=stylesheet href=/css/styles.css>
+<script>(function(){try{var a=localStorage.getItem('theme-preference');a==='dark'?document.documentElement.classList.add('theme-dark'):a==='light'?document.documentElement.classList.add('theme-light'):window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.classList.add('theme-dark')}catch(a){}})()</script>
+</head>
+<body>
+<header class=site-header>
+<div class=inner>
+<div style=display:flex;align-items:center;gap:1rem>
+<h1 class=site-title><a href=/>Hankeln Blog</a></h1>
+</div>
+<div>
+<button class=theme-toggle id=theme-toggle aria-label="Toggle dark mode">🌙</button>
+</div>
+</div>
+</header>
+<main class=container>
+<article class=post>
+<h1>Cilium on k3s</h1>
+<p class=meta>Jul 31, 2024</p>
+<div class=content>
+<h3 id=disable-flannel>Disable Flannel</h3>
+<p>Per default k3s is running flannel as its CNI provider. To be able to use cilium we need to disable flannel.</p>
+<p>This can be achieved by editing the <code>/etc/rancher/k3s/config.yaml</code>as below:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#75715e># /etc/rancher/k3s/config.yaml</span>
+<span style=color:#f92672>flannel-backend</span>: <span style=color:#ae81ff>none</span>
+<span style=color:#f92672>disable-network-policy</span>: <span style=color:#66d9ef>true</span>
+<span style=color:#f92672>disable</span>: [<span style=color:#e6db74>&#39;traefik&#39;</span>, <span style=color:#e6db74>&#39;servicelb&#39;</span>]
+</code></pre></div><p>Restart your k3s using</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>systemctl restart k3s
+</code></pre></div><h2 id=mounting-the-ebpf-system>Mounting the eBPF System</h2>
+<p>Normally Cilium automatically mounts the eBPF Filesystem. For me I had to do this manually for some reason.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>sudo mount bpffs -t bpf /sys/fs/bpf
+
+sudo bash -c <span style=color:#e6db74>&#39;cat &lt;&lt;EOF &gt;&gt; /etc/fstab
+</span><span style=color:#e6db74>none /sys/fs/bpf bpf rw,relatime 0 0
+</span><span style=color:#e6db74>EOF&#39;</span>
+</code></pre></div><p>You can check if this was successfull by executing:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat /etc/fstab
+<span style=color:#75715e># expected output:</span>
+none /sys/fs/bpf bpf rw,relatime <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>0</span>
+</code></pre></div><p>If you see the expected output, reload <code>fstab</code></p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>sudo systemctl daemon-reload
+sudo systemctl restart local-fs.target
+</code></pre></div><h2 id=installing-cilium-via-the-helm-chart>Installing Cilium via the Helm Chart</h2>
+<p>Cilium can either be installed using the Helm Chart or using the Cilium CLI.
+For a reference on how to install via the CLI you can take a look at the <a href=https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/#install-the-cilium-cli>documentation</a>.</p>
+<p>Below you can find the values I used to install Cilium via the Helm Chart.</p>
+<p>These values where created for chart version <code>1.16.0-rc.1</code>, if there have been breaking changes in the time until you read this, see <a href=https://github.com/lukashankeln/Homelab/tree/main/charts/cilium>here</a> for my latest configuration.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>cilium</span>:
+  <span style=color:#f92672>hubble</span>:
+    <span style=color:#f92672>tls</span>:
+      <span style=color:#f92672>enabled</span>: <span style=color:#66d9ef>false</span>
+    <span style=color:#f92672>metrics</span>:
+      <span style=color:#f92672>enabled</span>:
+        - <span style=color:#ae81ff>dns</span>
+        - <span style=color:#ae81ff>drop</span>
+        - <span style=color:#ae81ff>tcp</span>
+        - <span style=color:#ae81ff>flow</span>
+    <span style=color:#f92672>relay</span>:
+      <span style=color:#f92672>enabled</span>: <span style=color:#66d9ef>true</span>
+      <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>1</span>
+    <span style=color:#f92672>ui</span>:
+      <span style=color:#f92672>enabled</span>: <span style=color:#66d9ef>true</span>
+      <span style=color:#f92672>ingress</span>:
+        <span style=color:#f92672>annotations</span>:
+          <span style=color:#f92672>cert-manager.io/cluster-issuer</span>: <span style=color:#ae81ff>letsencrypt-dns01-issuer</span>
+        <span style=color:#f92672>className</span>: <span style=color:#ae81ff>nginx</span>
+        <span style=color:#f92672>enabled</span>: <span style=color:#66d9ef>true</span>
+        <span style=color:#f92672>hosts</span>:
+          - <span style=color:#ae81ff>hubble.example.com</span>
+        <span style=color:#f92672>tls</span>:
+          - <span style=color:#f92672>hosts</span>:
+              - <span style=color:#ae81ff>hubble.example.com</span>
+            <span style=color:#f92672>secretName</span>: <span style=color:#ae81ff>hubble-tls</span>
+  <span style=color:#f92672>ipv4NativeRoutingCIDR</span>: <span style=color:#ae81ff>10.42.0.0</span><span style=color:#ae81ff>/16</span>
+  <span style=color:#f92672>ipam</span>:
+    <span style=color:#f92672>operator</span>:
+      <span style=color:#f92672>clusterPoolIPv4PodCIDRList</span>:
+        - <span style=color:#ae81ff>10.42.0.0</span><span style=color:#ae81ff>/16</span>
+  <span style=color:#f92672>operator</span>:
+    <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>1</span>
+</code></pre></div><h2 id=vxlan-errors>Vxlan Errors</h2>
+<p>For me I had some errors with existing vxlan device users.</p>
+<p>To check for this run the following command to show all active vxlan devices.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>ip link show type vxlan
+</code></pre></div><p>If you still get the reference to flannel as in the example output below:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>3: flannel.1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style=color:#ae81ff>8951</span> qdisc noqueue state UNKNOWN mode DEFAULT group default
+    link/ether 1a:ca:a9:2c:dc:3b brd ff:ff:ff:ff:ff:ff
+11: cilium_vxlan: &lt;BROADCAST,MULTICAST&gt; mtu <span style=color:#ae81ff>1500</span> qdisc noop state DOWN mode DEFAULT group default qlen <span style=color:#ae81ff>1000</span>
+    link/ether 12:80:3f:83:7f:2a brd ff:ff:ff:ff:ff:ff
+</code></pre></div><p>You can resolve this by removing the <code>flannel.1</code> as follows:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>ip link set flannel.1 down
+ip link delete flannel.1
+</code></pre></div><p>After this the cilium vxlan should work as expected.</p>
+</div>
+</article>
+</main>
+<footer class=site-footer>
+<div class=inner>
+<p>© 2025 Lukas Hankeln</p>
+</div>
+</footer>
+<script src=/js/theme.js defer></script>
+</body>
+</html>

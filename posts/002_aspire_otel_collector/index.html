@@ -1,0 +1,57 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Dotnet Aspire Kubernetes | Hankeln Blog</title>
+<meta name=description content="Personal blog by Luka Hankeln">
+<link rel=stylesheet href=/css/styles.css>
+<script>(function(){try{var a=localStorage.getItem('theme-preference');a==='dark'?document.documentElement.classList.add('theme-dark'):a==='light'?document.documentElement.classList.add('theme-light'):window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.classList.add('theme-dark')}catch(a){}})()</script>
+</head>
+<body>
+<header class=site-header>
+<div class=inner>
+<div style=display:flex;align-items:center;gap:1rem>
+<h1 class=site-title><a href=/>Hankeln Blog</a></h1>
+</div>
+<div>
+<button class=theme-toggle id=theme-toggle aria-label="Toggle dark mode">🌙</button>
+</div>
+</div>
+</header>
+<main class=container>
+<article class=post>
+<h1>Dotnet Aspire Kubernetes</h1>
+<p class=meta>Jul 31, 2024</p>
+<div class=content>
+<p>One of the most used oberservability stacks in Kubernetes must be the Kube-Prometheus-Stack.
+Bringing Prometheus, Grafana, Alertmanager to the table, Promtail and Loki completing the stack on the logging side.</p>
+<p>One problem I always had with this is its resource consumption. It might not be as huge as one might expect it to be, but still if you are running a really low power homelab on k3s this might be important to you.</p>
+<p><strong>Are there any alternatives that consume way less resources? Even if they might not be as all powerful as Grafana?</strong></p>
+<p>Yes there is!</p>
+<p>The <a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/overview?tabs=bash">Dotnet Aspire Dashboard</a> has originally been developed to be a leightweight tool to aid local development.
+And bring the local development environment closer to the desired cloud setups.</p>
+<p>So my goal was combining the <a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/overview?tabs=bash">Dotnet Aspire Dashboard</a> with the <a href=https://github.com/open-telemetry/opentelemetry-collector>OpenTelemetry Collector</a> to see how much functionality this might be able to provide.</p>
+<p>So I set out on creating <a href=https://github.com/kube-the-home/aspire-dashboard-helm>this Helm Chart</a>, here is whats currently possible using this.</p>
+<h3 id=log-collection-by-application>Log collection by application</h3>
+<p><img src=./logging.png alt=image>
+The <a href=https://github.com/open-telemetry/opentelemetry-collector>OpenTelemetry Collector</a> is able to collect the logs for all Pods running in your cluster and forwarding them to the <a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/overview?tabs=bash">Dotnet Aspire Dashboard</a>.</p>
+<h3 id=host-metrics>Host metrics</h3>
+<p><img src=./host-metrics.png alt=image>
+The <a href=https://github.com/open-telemetry/opentelemetry-collector>OpenTelemetry Collector</a> is able to scrape host metrics and send them to the <a href="https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard/overview?tabs=bash">Dotnet Aspire Dashboard</a>.
+At the moment Pod metrics do not yet work,
+except you configure your application to send
+send your metrics to the Dashboard using <a href=https://opentelemetry.io/>OpenTelemetry</a>.</p>
+<h3 id=for-the-future>For the future</h3>
+<h6 id=pod-metrics>Pod metrics</h6>
+<p>Would it be possible to also scrape Pod metrics without the need to change the pod configuration?</p>
+</div>
+</article>
+</main>
+<footer class=site-footer>
+<div class=inner>
+<p>© 2025 Lukas Hankeln</p>
+</div>
+</footer>
+<script src=/js/theme.js defer></script>
+</body>
+</html>
