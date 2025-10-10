@@ -1,0 +1,109 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Automate K3s Upgrades | Hankeln Blog</title>
+<meta name=description content="Personal blog by Luka Hankeln">
+<link rel=stylesheet href=/css/styles.css>
+<script>(function(){try{var a=localStorage.getItem('theme-preference');a==='dark'?document.documentElement.classList.add('theme-dark'):a==='light'?document.documentElement.classList.add('theme-light'):window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.classList.add('theme-dark')}catch(a){}})()</script>
+</head>
+<body>
+<header class=site-header>
+<div class=inner>
+<div style=display:flex;align-items:center;gap:1rem>
+<h1 class=site-title><a href=/>Hankeln Blog</a></h1>
+</div>
+<div>
+<button class=theme-toggle id=theme-toggle aria-label="Toggle dark mode">🌙</button>
+</div>
+</div>
+</header>
+<main class=container>
+<article class=post>
+<h1>Automate K3s Upgrades</h1>
+<p class=meta>Oct 10, 2025</p>
+<div class=content>
+<p>In the following post I explain how I leveraged <a href=https://github.com/renovatebot/renovate>Renovate</a> and the <a href=https://github.com/rancher/system-upgrade-controller>system-upgrade-controller</a>
+to automate K3s upgrades.</p>
+<h2 id=prerequisites>Prerequisites</h2>
+<p>My K3s cluster is managed via ArgoCD. This is required so that updated resources are automatically applied to your Kubernetes cluster.</p>
+<p>Also you&rsquo;ll need Renovate to automatically fetch updates for you.</p>
+<h2 id=how-it-works>How it works</h2>
+<h3 id=deploy-system-upgrade-controller>Deploy System-Upgrade-Controller</h3>
+<p>First, deploy the <a href=https://github.com/rancher/system-upgrade-controller>system-upgrade-controller</a> to your cluster. This tool from Rancher can coordinate in-cluster K3s upgrades.</p>
+<p>If you are using ArgoCD, here is an example Application for the <a href=https://github.com/rancher/system-upgrade-controller>system-upgrade-controller</a>.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>argoproj.io/v1alpha1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Application</span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>system-upgrade</span>
+  <span style=color:#f92672>namespace</span>: <span style=color:#ae81ff>argocd</span>
+  <span style=color:#f92672>finalizers</span>:
+    - <span style=color:#ae81ff>resources-finalizers.argocd.argoproj.io</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>project</span>: <span style=color:#ae81ff>default</span>
+  <span style=color:#f92672>revisionHistoryLimit</span>: <span style=color:#ae81ff>1</span>
+  <span style=color:#f92672>destination</span>:
+    <span style=color:#f92672>name</span>: <span style=color:#ae81ff>in-cluster</span>
+    <span style=color:#f92672>namespace</span>: <span style=color:#ae81ff>system-upgrade</span>
+  <span style=color:#f92672>syncPolicy</span>:
+    <span style=color:#f92672>automated</span>:
+      <span style=color:#f92672>prune</span>: <span style=color:#66d9ef>true</span>
+      <span style=color:#f92672>allowEmpty</span>: <span style=color:#66d9ef>true</span>
+  <span style=color:#f92672>source</span>:
+    <span style=color:#f92672>repoURL</span>: <span style=color:#ae81ff>https://kube-the-home.github.io/system-upgrade-controller-helm/</span>
+    <span style=color:#f92672>targetRevision</span>: <span style=color:#ae81ff>1.4.1</span>
+    <span style=color:#f92672>chart</span>: <span style=color:#ae81ff>system-upgrade-controller</span>
+    <span style=color:#f92672>helm</span>:
+      <span style=color:#f92672>valuesObject</span>: {}
+</code></pre></div><h3 id=create-a-plan-to-upgrade-your-cluster>Create a &lsquo;Plan&rsquo; to upgrade your cluster</h3>
+<p>The &lsquo;Plan&rsquo; is a custom resource that the <a href=https://github.com/rancher/system-upgrade-controller>system-upgrade-controller</a> is using to decide if it should update your cluster.</p>
+<p>Adapt the following &lsquo;Plan&rsquo; to match your needs.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>---
+<span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>upgrade.cattle.io/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Plan</span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>k3s-server</span>
+  <span style=color:#f92672>namespace</span>: <span style=color:#ae81ff>system-upgrade</span>
+  <span style=color:#f92672>labels</span>:
+    <span style=color:#f92672>k3s-upgrade</span>: <span style=color:#ae81ff>server</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>concurrency</span>: <span style=color:#ae81ff>1</span>
+  <span style=color:#f92672>version</span>: <span style=color:#ae81ff>v1.34.1+k3s1</span>
+  <span style=color:#f92672>nodeSelector</span>:
+    <span style=color:#f92672>matchExpressions</span>:
+      - {<span style=color:#f92672>key: kubernetes.io/hostname, operator</span>: <span style=color:#ae81ff>Exists}</span>
+  <span style=color:#f92672>serviceAccountName</span>: <span style=color:#ae81ff>system-upgrade</span>
+  <span style=color:#f92672>cordon</span>: <span style=color:#66d9ef>true</span>
+  <span style=color:#f92672>upgrade</span>:
+    <span style=color:#f92672>image</span>: <span style=color:#ae81ff>rancher/k3s-upgrade</span>
+</code></pre></div><h3 id=instruct-renovate-to-update-your-plan>Instruct renovate to update your &lsquo;Plan&rsquo;</h3>
+<p>Finally you have to instruct Renovate to automatically update your &lsquo;Plan&rsquo;.</p>
+<p>Place this configuration in your repository&rsquo;s renovate.json (or in your Renovate config file) so Renovate can detect and update the Plan YAML.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json>{
+  <span style=color:#f92672>&#34;customManagers&#34;</span>: [
+    {
+      <span style=color:#f92672>&#34;customType&#34;</span>: <span style=color:#e6db74>&#34;regex&#34;</span>,
+      <span style=color:#f92672>&#34;managerFilePatterns&#34;</span>: [
+        <span style=color:#e6db74>&#34;/^custom-resources/system-upgrade/plan.yaml$/&#34;</span>
+      ],
+      <span style=color:#f92672>&#34;matchStrings&#34;</span>: [
+        <span style=color:#e6db74>&#34;version:\\s*(?&lt;currentValue&gt;v[\\d.]+\\+k3s\\d+)&#34;</span>
+      ],
+      <span style=color:#f92672>&#34;depNameTemplate&#34;</span>: <span style=color:#e6db74>&#34;k3s-io/k3s&#34;</span>,
+      <span style=color:#f92672>&#34;datasourceTemplate&#34;</span>: <span style=color:#e6db74>&#34;github-releases&#34;</span>,
+      <span style=color:#f92672>&#34;versioningTemplate&#34;</span>: <span style=color:#e6db74>&#34;loose&#34;</span>
+    }
+  ]
+}
+</code></pre></div>
+</div>
+</article>
+</main>
+<footer class=site-footer>
+<div class=inner>
+<p>© 2025 Lukas Hankeln</p>
+</div>
+</footer>
+<script src=/js/theme.js defer></script>
+</body>
+</html>
