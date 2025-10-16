@@ -33,7 +33,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 - [Automation](https://github.com/stars/lukashankeln/lists/automation)
 - [PowerTools](https://github.com/stars/lukashankeln/lists/powertools)
 - [CI/CD](https://github.com/stars/lukashankeln/lists/cicd)
-- [eBPF](https://github.com/stars/lukashankeln/lists/ebpf
+- [eBPF](https://github.com/stars/lukashankeln/lists/ebpf)
 - [C#](https://github.com/stars/lukashankeln/lists/c)
 
 ## Recomandations
