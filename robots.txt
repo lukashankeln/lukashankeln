@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap — Hugo will generate sitemap.xml at the site root by default
+Sitemap: /sitemap.xml
+
+# Host (optional)
+# Host: example.com
+
+# If you want to block staging or other paths, add Disallow lines below
+# Disallow: /admin/
