@@ -1,0 +1,84 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=google-site-verification content="yUVtxcfUmXDvKqBUQ8JaCvgTpjbRfra42FYbx6cHA8s">
+<title>OAuth2 Proxy with Ingress Nginx | Hankeln Blog</title>
+<meta name=description content="Personal blog by Luka Hankeln">
+<link rel=stylesheet href=/css/styles.css>
+<script>(function(){try{var a=localStorage.getItem('theme-preference');a==='dark'?document.documentElement.classList.add('theme-dark'):a==='light'?document.documentElement.classList.add('theme-light'):window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.classList.add('theme-dark')}catch(a){}})()</script>
+</head>
+<body>
+<header class=site-header>
+<div class=inner>
+<div style=display:flex;align-items:center;gap:1rem>
+<h1 class=site-title><a href=/>Hankeln Blog</a></h1>
+</div>
+<div>
+<button class=theme-toggle id=theme-toggle aria-label="Toggle dark mode">🌙</button>
+</div>
+</div>
+</header>
+<main class=container>
+<article class=post>
+<h1>OAuth2 Proxy with Ingress Nginx</h1>
+<p class=meta>Nov 6, 2025</p>
+<div class=content>
+<p>We recently added external authentication to our ingress-nginx using oauth2-proxy. The basic setup uses these two annotations on the ingress that we want protected:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#75715e># example snippet</span>
+<span style=color:#f92672>nginx.ingress.kubernetes.io/auth-signin</span>: <span style=color:#ae81ff>https://access.example.com/oauth2/start?rd=$scheme://$host$request_uri</span>
+<span style=color:#f92672>nginx.ingress.kubernetes.io/auth-url</span>: <span style=color:#ae81ff>https://access.example.com/oauth2/auth</span>
+</code></pre></div><p>The problem we hit</p>
+<ul>
+<li>When the backend service returns HTTP 401, ingress-nginx (with auth-signin set) intercepts that 401 and automatically redirects the client to the oauth2-proxy sign-in flow. That can be surprising if your upstream intentionally returns 401 (for example, an API that communicates auth state to the client and expects the client to react).</li>
+</ul>
+<p>Why this happens</p>
+<ul>
+<li>Setting auth-signin tells ingress-nginx what URL to redirect unauthenticated users to. To implement that behavior it maps 401 responses to a redirect page by using NGINX error_page handling. The result: a backend 401 becomes a redirect to your auth endpoint instead of being passed through to the client.</li>
+</ul>
+<p>The fix we used</p>
+<ul>
+<li>Prevent ingress-nginx from intercepting backend 401 responses by disabling proxy error interception for the relevant server block:</li>
+</ul>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#75715e># Add this annotation to the ingress to avoid intercepting 401s from the backend</span>
+<span style=color:#f92672>nginx.ingress.kubernetes.io/server-snippet</span>: |<span style=color:#e6db74>
+</span><span style=color:#e6db74>  # Don&#39;t intercept 401 errors from backend - pass them through to client
+</span><span style=color:#e6db74>  proxy_intercept_errors off;</span>  
+</code></pre></div><p>Full example ingress</p>
+<ul>
+<li>The following is a practical example showing the auth annotations together with the server-snippet. This is safe to apply to a specific ingress that needs pass-through behavior.</li>
+</ul>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>networking.k8s.io/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Ingress</span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>example-protected-app</span>
+  <span style=color:#f92672>annotations</span>:
+    <span style=color:#f92672>nginx.ingress.kubernetes.io/auth-signin</span>: <span style=color:#e6db74>&#34;https://access.example.com/oauth2/start?rd=$scheme://$host$request_uri&#34;</span>
+    <span style=color:#f92672>nginx.ingress.kubernetes.io/auth-url</span>:    <span style=color:#e6db74>&#34;https://access.example.com/oauth2/auth&#34;</span>
+    <span style=color:#f92672>nginx.ingress.kubernetes.io/server-snippet</span>: |<span style=color:#e6db74>
+</span><span style=color:#e6db74>      # Ensure backend 401s are forwarded to the client instead of causing a redirect
+</span><span style=color:#e6db74>      proxy_intercept_errors off;</span>      
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>rules</span>:
+    - <span style=color:#f92672>host</span>: <span style=color:#ae81ff>app.example.com</span>
+      <span style=color:#f92672>http</span>:
+        <span style=color:#f92672>paths</span>:
+          - <span style=color:#f92672>path</span>: <span style=color:#ae81ff>/</span>
+            <span style=color:#f92672>pathType</span>: <span style=color:#ae81ff>Prefix</span>
+            <span style=color:#f92672>backend</span>:
+              <span style=color:#f92672>service</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>my-service</span>
+                <span style=color:#f92672>port</span>:
+                  <span style=color:#f92672>number</span>: <span style=color:#ae81ff>80</span>
+</code></pre></div>
+</div>
+</article>
+</main>
+<footer class=site-footer>
+<div class=inner>
+<p>© 2025 Lukas Hankeln</p>
+</div>
+</footer>
+<script src=/js/theme.js defer></script>
+</body>
+</html>
