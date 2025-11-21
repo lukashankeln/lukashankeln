@@ -18,6 +18,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 ## Projects
 - :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
+- :blue_book: [Author of Renovate-Operator](https://github.com/mogenius/renovate-operator)
 - :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
     * :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
 - :books: [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
@@ -44,6 +45,8 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 ### Automation
 - [Argo Workflows](https://github.com/argoproj/argo-workflows)
+- [Renovate](https://github.com/renovatebot/renovate)
+  - [Renovate Operator](https://github.com/mogenius/renovate-operator)
 
 
 ### Kubernetes
