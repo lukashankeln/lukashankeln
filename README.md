@@ -17,12 +17,22 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 
 ## Projects
-- :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
-- :blue_book: [Author of Renovate-Operator](https://github.com/mogenius/renovate-operator)
-- :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
-    * :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
-- :books: [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
-- :lock: [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
+
+### :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
+A fully GitOps-driven two-node Kubernetes cluster managed with ArgoCD. Features automated secret management using HashiCorp Vault and the External Secrets Operator for secure credential handling across all deployments.
+
+### :blue_book: [Renovate Operator](https://github.com/mogenius/renovate-operator)
+As the initial author, I created this Kubernetes-native operator. It enables running Renovate as a first-class Kubernetes resource, making dependency management seamless in cloud-native workflows.
+
+### :open_file_folder: [Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
+An open-source collection of Helm charts designed for homelab and self-hosting enthusiasts. Includes charts for system-upgrade-controller, Kanboard, and the .NET Aspire Dashboard, making it easier to deploy these tools in Kubernetes environments.
+* :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
+
+### :books: [Commandline Runner](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
+A .NET library that simplifies working with external processes in C#. Provides an intuitive API for starting sub-processes, handling asynchronous or synchronous execution, and capturing output streams with minimal boilerplate code.
+
+### :lock: [LuHa QR-Code Generator](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
+A Chrome extension that added QR code generation for any webpage with a single click. Now archived since Chrome has integrated this functionality as a native feature.
 
 ## Awesome lists
 - :computer: [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)
