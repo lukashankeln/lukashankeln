@@ -3,7 +3,7 @@
     <h2 align="center">Hello there 👋</h2>
 </div>
 
-I am a Cloud Platform Enginner and .Net enthusiast.
+I am a Cloud Platform Engineer and .Net enthusiast.
 
 Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
@@ -22,7 +22,6 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 - :open_file_folder: [Open-Sourcing Helm Charts in Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
     * :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
 - :books: [Library to easily work with Process.Start in C#](https://www.nuget.org/packages/Hankeln.Commandline.Runner)
-
 - :lock: [LuHa QR-Code Generator for Google Chrome](https://chrome.google.com/webstore/detail/luha-qr-code-creator/bgbdinnmkangaocpbbmfmbcojlnhkecg?hl=de) (archived)
 
 ## Awesome lists
@@ -37,7 +36,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 - [eBPF](https://github.com/stars/lukashankeln/lists/ebpf)
 - [C#](https://github.com/stars/lukashankeln/lists/c)
 
-## Recomandations
+## Recommendations
 
 ### Gitops Tools
 - [Argo CD](https://github.com/argoproj/argo-cd)
