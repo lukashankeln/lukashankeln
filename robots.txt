@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap — Hugo will generate sitemap.xml at the site root by default
-Sitemap: /sitemap.xml
+Sitemap: https://blog.hankeln.work/sitemap.xml
 
 # Host (optional)
 # Host: example.com
