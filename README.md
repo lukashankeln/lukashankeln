@@ -18,7 +18,7 @@ Currently playing with dotnet #aspire and open telemetry in Kubernetes.
 
 ## Projects
 
-### :computer: [ArgoCD managed K3s Homelab](https://github.com/lukashankeln/Homelab)
+### :computer: [ArgoCD managed Homelab with Talos Linux](https://github.com/lukashankeln/Homelab)
 A fully GitOps-driven two-node Kubernetes cluster managed with ArgoCD. Features automated secret management using HashiCorp Vault and the External Secrets Operator for secure credential handling across all deployments.
 
 ### :blue_book: [Renovate Operator](https://github.com/mogenius/renovate-operator)
