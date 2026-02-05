@@ -59,6 +59,7 @@ A Chrome extension that added QR code generation for any webpage with a single c
 
 
 ### Kubernetes
+- [Talos Linux](https://github.com/siderolabs/talos)
 - [k3s](https://github.com/k3s-io/k3s)
 - [Cilium](https://github.com/cilium/cilium) & [Hubble](https://github.com/cilium/hubble)
 - [Kyverno](https://github.com/kyverno/kyverno) & [Kyverno Policy Reporter](https://github.com/kyverno/policy-reporter)
