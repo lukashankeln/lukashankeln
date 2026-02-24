@@ -1,0 +1,124 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=google-site-verification content="yUVtxcfUmXDvKqBUQ8JaCvgTpjbRfra42FYbx6cHA8s">
+<title>Migrating Gitea from SQLite to PostgreSQL | Hankeln Blog</title>
+<meta name=description content="Personal blog by Luka Hankeln">
+<link rel=stylesheet href=/css/styles.css>
+<script>(function(){try{var a=localStorage.getItem('theme-preference');a==='dark'?document.documentElement.classList.add('theme-dark'):a==='light'?document.documentElement.classList.add('theme-light'):window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.classList.add('theme-dark')}catch(a){}})()</script>
+</head>
+<body>
+<header class=site-header>
+<div class=inner>
+<div style=display:flex;align-items:center;gap:1rem>
+<h1 class=site-title><a href=/>Hankeln Blog</a></h1>
+</div>
+<div>
+<button class=theme-toggle id=theme-toggle aria-label="Toggle dark mode">🌙</button>
+</div>
+</div>
+</header>
+<main class=container>
+<article class=post>
+<h1>Migrating Gitea from SQLite to PostgreSQL</h1>
+<p class=meta>Feb 24, 2026</p>
+<div class=content>
+<p>I recently migrated my Gitea instance from SQLite to PostgreSQL managed by the <a href=https://cloudnative-pg.io/>CloudNativePG (CNPG)</a> operator. Here&rsquo;s how I did it.</p>
+<h2 id=prerequisites>Prerequisites</h2>
+<ul>
+<li><a href=https://cloudnative-pg.io/>CloudNativePG operator</a> installed in your cluster</li>
+<li>ArgoCD managing your Gitea deployment</li>
+<li>A backup strategy in place</li>
+</ul>
+<h2 id=backup-first>Backup First</h2>
+<p>Gitea&rsquo;s <code>dump</code> command can export directly in PostgreSQL format, which avoids manual SQL conversion:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>GITEA_POD<span style=color:#f92672>=</span><span style=color:#66d9ef>$(</span>kubectl get pod -n gitea -l app.kubernetes.io/name<span style=color:#f92672>=</span>gitea -o jsonpath<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;{.items[0].metadata.name}&#39;</span><span style=color:#66d9ef>)</span>
+
+kubectl exec -n gitea $GITEA_POD -- gitea dump <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --config /data/gitea/conf/app.ini <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --database postgres <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>  --file /tmp/gitea-postgres-export.zip
+
+kubectl cp gitea/$GITEA_POD:/tmp/gitea-postgres-export.zip ./gitea-postgres-export.zip
+
+unzip -j gitea-postgres-export.zip <span style=color:#e6db74>&#34;gitea-db.sql&#34;</span> -d .
+</code></pre></div><p>Then scale Gitea down to prevent data changes during migration:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>kubectl scale deployment -n gitea gitea --replicas<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>
+kubectl wait --for<span style=color:#f92672>=</span>delete pod -n gitea -l app.kubernetes.io/name<span style=color:#f92672>=</span>gitea --timeout<span style=color:#f92672>=</span>120s
+</code></pre></div><h2 id=create-the-postgresql-cluster>Create the PostgreSQL Cluster</h2>
+<p>Create a CNPG <code>Cluster</code> resource. A minimal setup looks like this:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>postgresql.cnpg.io/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Cluster</span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>gitea-postgresql</span>
+  <span style=color:#f92672>namespace</span>: <span style=color:#ae81ff>gitea</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>instances</span>: <span style=color:#ae81ff>1</span>
+  <span style=color:#f92672>bootstrap</span>:
+    <span style=color:#f92672>initdb</span>:
+      <span style=color:#f92672>database</span>: <span style=color:#ae81ff>gitea</span>
+      <span style=color:#f92672>owner</span>: <span style=color:#ae81ff>gitea</span>
+  <span style=color:#f92672>imageCatalogRef</span>:
+    <span style=color:#f92672>apiGroup</span>: <span style=color:#ae81ff>postgresql.cnpg.io</span>
+    <span style=color:#f92672>kind</span>: <span style=color:#ae81ff>ClusterImageCatalog</span>
+    <span style=color:#f92672>name</span>: <span style=color:#ae81ff>postgresql</span>
+    <span style=color:#f92672>major</span>: <span style=color:#ae81ff>17</span>
+  <span style=color:#f92672>storage</span>:
+    <span style=color:#f92672>size</span>: <span style=color:#ae81ff>5Gi</span>
+  <span style=color:#f92672>walStorage</span>:
+    <span style=color:#f92672>size</span>: <span style=color:#ae81ff>2Gi</span>
+</code></pre></div><p>Wait for it to be ready:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>kubectl wait --for<span style=color:#f92672>=</span>condition<span style=color:#f92672>=</span>Ready cluster/gitea-postgresql -n gitea --timeout<span style=color:#f92672>=</span>300s
+</code></pre></div><h2 id=migrate-the-data>Migrate the Data</h2>
+<p>Then port-forward to the new cluster and import:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>PGUSER<span style=color:#f92672>=</span><span style=color:#66d9ef>$(</span>kubectl get secret -n gitea gitea-postgresql-app -o jsonpath<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;{.data.username}&#39;</span> | base64 -d<span style=color:#66d9ef>)</span>
+PGPASS<span style=color:#f92672>=</span><span style=color:#66d9ef>$(</span>kubectl get secret -n gitea gitea-postgresql-app -o jsonpath<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;{.data.password}&#39;</span> | base64 -d<span style=color:#66d9ef>)</span>
+PGDB<span style=color:#f92672>=</span><span style=color:#66d9ef>$(</span>kubectl get secret -n gitea gitea-postgresql-app -o jsonpath<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;{.data.dbname}&#39;</span> | base64 -d<span style=color:#66d9ef>)</span>
+
+kubectl port-forward -n gitea svc/gitea-postgresql-rw 5432:5432
+
+PGPASSWORD<span style=color:#f92672>=</span>$PGPASS psql -h localhost -U $PGUSER -d $PGDB -f gitea-db.sql
+</code></pre></div><h2 id=update-the-gitea-helm-values>Update the Gitea Helm Values</h2>
+<p>Point Gitea at the new PostgreSQL instance using environment variables sourced from the CNPG-generated secret. If you use network policies, also add an <code>egress-postgres</code> label to your deployment.</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#f92672>gitea</span>:
+  <span style=color:#f92672>additionalConfigFromEnvs</span>:
+    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>GITEA__DATABASE__DB_TYPE</span>
+      <span style=color:#f92672>value</span>: <span style=color:#ae81ff>postgres</span>
+    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>GITEA__DATABASE__HOST</span>
+      <span style=color:#f92672>value</span>: <span style=color:#ae81ff>gitea-postgresql-rw.gitea.svc.cluster.local:5432</span>
+    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>GITEA__DATABASE__NAME</span>
+      <span style=color:#f92672>valueFrom</span>:
+        <span style=color:#f92672>secretKeyRef</span>:
+          <span style=color:#f92672>name</span>: <span style=color:#ae81ff>gitea-postgresql-app</span>
+          <span style=color:#f92672>key</span>: <span style=color:#ae81ff>dbname</span>
+    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>GITEA__DATABASE__USER</span>
+      <span style=color:#f92672>valueFrom</span>:
+        <span style=color:#f92672>secretKeyRef</span>:
+          <span style=color:#f92672>name</span>: <span style=color:#ae81ff>gitea-postgresql-app</span>
+          <span style=color:#f92672>key</span>: <span style=color:#ae81ff>username</span>
+    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>GITEA__DATABASE__PASSWD</span>
+      <span style=color:#f92672>valueFrom</span>:
+        <span style=color:#f92672>secretKeyRef</span>:
+          <span style=color:#f92672>name</span>: <span style=color:#ae81ff>gitea-postgresql-app</span>
+          <span style=color:#f92672>key</span>: <span style=color:#ae81ff>password</span>
+    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>GITEA__DATABASE__SSL_MODE</span>
+      <span style=color:#f92672>value</span>: <span style=color:#ae81ff>disable</span>
+</code></pre></div><p>Commit and push so ArgoCD picks up the changes. The pod will start but stay unhealthy until the data is imported.</p>
+<h2 id=sync-and-validate>Sync and Validate</h2>
+<p>Trigger a final ArgoCD sync to bring Gitea up with the new configuration:</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>argocd app sync gitea --force
+kubectl get pods -n gitea -w
+</code></pre></div><p>Once the pod is running, verify the data made it across.</p>
+<p>A few things worth knowing about CNPG: it creates three services for the cluster — <code>gitea-postgresql-rw</code> (primary), <code>gitea-postgresql-ro</code> (read replicas), and <code>gitea-postgresql-r</code> (any instance). The app secret (<code>gitea-postgresql-app</code>) contains <code>username</code>, <code>password</code>, <code>dbname</code>, <code>host</code>, and <code>port</code>, which map cleanly to Gitea&rsquo;s config environment variables.</p>
+</div>
+</article>
+</main>
+<footer class=site-footer>
+<div class=inner>
+<p>© 2026 Lukas Hankeln</p>
+</div>
+</footer>
+<script src=/js/theme.js defer></script>
+</body>
+</html>
