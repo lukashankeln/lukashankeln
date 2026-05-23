@@ -24,6 +24,10 @@ A fully GitOps-driven two-node Kubernetes cluster managed with ArgoCD. Features 
 ### :blue_book: [Renovate Operator](https://github.com/mogenius/renovate-operator)
 As the initial author, I created this Kubernetes-native operator. It enables running Renovate as a first-class Kubernetes resource, making dependency management seamless in cloud-native workflows.
 
+### :mag_right: [GitOps Linter](https://github.com/lukashankeln/glint)
+How are you validating your GitOps Repositories? Check out `glint`! Write custom CEL Policies for your Applications.
+With support for ArgoCD, FluxCD and plain resources.
+
 ### :open_file_folder: [Kube-the-Home](https://github.com/orgs/kube-the-home/repositories)
 An open-source collection of Helm charts designed for homelab and self-hosting enthusiasts. Includes charts for system-upgrade-controller, Kanboard, and the .NET Aspire Dashboard, making it easier to deploy these tools in Kubernetes environments.
 * :notebook: [Documentation](https://kube-the-home.github.io/kube-the-home/)
